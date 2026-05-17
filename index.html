@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Соматопос – Цифровой доктор | Нейросетевая диагностика</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="ambient-background"></div>
+
+<header class="app-header glass-panel">
+    <div class="logo-area">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        <h1>Соматопос</h1>
+        <span class="badge-neuro">Neuro AI</span>
+    </div>
+    <div class="auth-section">
+        <div id="auth-login" class="auth-box">
+            <input type="text" id="username-input" placeholder="Имя пользователя..." list="user-suggestions" autocomplete="off">
+            <datalist id="user-suggestions"></datalist>
+            <input type="password" id="password-input" placeholder="Пароль...">
+            <button id="btn-login" class="btn-small">Войти</button>
+        </div>
+        <div id="auth-profile" class="auth-box" style="display: none;">
+            <span class="user-greeting">👤 <strong id="current-username"></strong></span>
+            <button id="btn-logout" class="btn-small btn-outline">Выйти</button>
+        </div>
+    </div>
+</header>
+
+<main class="scanner-main">
+    <!-- Левая панель: реальные данные с датчиков -->
+    <div class="panel-left glass-panel config-panel">
+        <div class="status-header">
+            <span class="live-badge"></span>
+            <p class="subtitle">Данные с датчиков поступают в реальном времени</p>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>
+                    Пульс (ФПГ)
+                </span>
+                <span class="metric-value" id="val-hr">-- <span class="metric-unit">уд/мин</span></span>
+            </div>
+            <div class="sensor-status" id="hr-status">Ожидание данных...</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Мышечная активность (ЭМГ)
+                </span>
+                <span class="metric-value" id="val-muscle">-- <span class="metric-unit">%</span></span>
+            </div>
+            <div class="sensor-status" id="muscle-status">Ожидание данных...</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
+                    Мозговая активность (ЭЭГ)
+                </span>
+                <span class="metric-value" id="val-brain">-- <span class="metric-unit">%</span></span>
+            </div>
+            <div class="sensor-status" id="brain-status">Ожидание данных...</div>
+        </div>
+
+        <div id="scan-status" class="scan-status-msg"></div>
+        <div class="last-update" id="last-update-time"></div>
+    </div>
+
+    <!-- Центральная панель: анатомическая карта -->
+    <div class="panel-middle glass-panel" id="svg-panel">
+        <div class="scan-line"></div>
+        <div class="tooltip" id="tooltip">
+            <div class="tooltip-title" id="tt-title">Зона</div>
+            <div class="tooltip-status">Статус: <span id="tt-status">В норме</span></div>
+        </div>
+        <div class="svg-container">
+            <svg viewBox="0 0 200 400" width="100%" height="100%" style="filter: drop-shadow(0 20px 13px rgba(0,0,0,0.3));">
+                <g id="torso_zone" class="body-zone" data-name="Туловище (Мышцы кора)">
+                    <path d="M 88 48 C 88 48, 75 55, 65 65 C 60 100, 70 150, 75 190 C 85 200, 115 200, 125 190 C 130 150, 140 100, 135 65 C 125 55, 112 48, 112 48 C 112 48, 100 55, 88 48 Z" />
+                </g>
+                <g id="head_zone" class="body-zone" data-name="Голова (Мозг, ЦНС)">
+                    <ellipse cx="100" cy="28" rx="16" ry="22" />
+                </g>
+                <g id="left_arm" class="body-zone" data-name="Левая рука (Периферия)">
+                    <path d="M 60 70 C 40 90, 30 140, 25 190 C 22 210, 35 210, 38 190 C 45 140, 55 100, 65 85 Z" />
+                </g>
+                <g id="right_arm" class="body-zone" data-name="Правая рука (Периферия)">
+                    <path d="M 140 70 C 160 90, 170 140, 175 190 C 178 210, 165 210, 162 190 C 155 140, 145 100, 135 85 Z" />
+                </g>
+                <g id="left_leg" class="body-zone" data-name="Левая нога (Периферия)">
+                    <path d="M 75 190 C 70 250, 65 320, 70 380 C 72 395, 88 395, 85 380 C 80 320, 85 250, 95 195 Z" />
+                </g>
+                <g id="right_leg" class="body-zone" data-name="Правая нога (Периферия)">
+                    <path d="M 125 190 C 130 250, 135 320, 130 380 C 128 395, 112 395, 115 380 C 120 320, 115 250, 105 195 Z" />
+                </g>
+                <g id="heart_zone" class="body-zone" data-name="Сердце (Миокард)">
+                    <path d="M 108 108 C 108 104, 104 100, 100 100 C 96 100, 92 104, 92 112 C 92 120, 100 128, 108 136 C 116 128, 124 120, 124 112 C 124 104, 120 100, 116 100 C 112 100, 108 104, 108 108 Z" />
+                    <path d="M 108 112 C 108 109, 105 106, 102 106 C 99 106, 96 109, 96 115 C 96 121, 102 127, 108 133 C 114 127, 120 121, 120 115 C 120 109, 117 106, 114 106 C 111 106, 108 109, 108 112 Z" style="opacity: 0.4;" />
+                    <path d="M 94 118 L 100 118 L 102 120 L 106 108 L 109 124 L 112 118 L 114 118 C 115 115, 117 115, 118 118 L 122 118" style="fill: none; stroke-width: 1.5px; stroke-linejoin: round;" />
+                </g>
+            </svg>
+        </div>
+        <div class="legend">
+            <div class="legend-item"><div class="dot dot-normal"></div> В норме</div>
+            <div class="legend-item"><div class="dot dot-warning"></div> Отклонение</div>
+            <div class="legend-item"><div class="dot dot-critical"></div> Критично</div>
+        </div>
+    </div>
+
+    <!-- Правая панель: диагноз от нейросети -->
+    <div class="panel-right glass-panel analysis-panel">
+        <h2>Диагноз и рекомендации</h2>
+        <div id="ai-conclusion" class="ai-box">
+            <div class="ai-status">Ожидание данных...</div>
+            <div class="ai-desc">Данные с датчиков обрабатываются нейросетью</div>
+            <div class="ai-confidence" id="ai-confidence" style="display: none;"></div>
+        </div>
+        <div class="organ-info" id="organ-info" style="display: none;">
+            <h3 id="organ-title">Орган</h3>
+            <p id="organ-desc">Информация...</p>
+        </div>
+    </div>
+</main>
+
+<section class="data-section">
+    <div class="data-panel glass-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>📋 История пациента</h2>
+            <select id="history-sort" class="search-input" style="width: auto; padding: 0.3rem 0.5rem; margin-bottom: 0;">
+                <option value="date-desc">Сначала новые</option>
+                <option value="date-asc">Сначала старые</option>
+            </select>
+        </div>
+        <div id="history-list" class="data-list"></div>
+    </div>
+    <div class="data-panel glass-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>👥 База пациентов</h2>
+            <button id="btn-clear-db" class="btn-small btn-danger">Очистить БД</button>
+        </div>
+        <input type="text" id="user-search" placeholder="Поиск пациента..." class="search-input">
+        <div id="users-list" class="data-list"></div>
+    </div>
+</section>
+
+<!-- Модальное окно -->
+<div id="custom-modal" class="modal-overlay glass-panel-overlay" style="display: none;">
+    <div class="modal-box glass-panel">
+        <p id="modal-text"></p>
+        <div class="modal-actions">
+            <button id="modal-btn-cancel" class="btn-small btn-outline">Отмена</button>
+            <button id="modal-btn-confirm" class="btn-small">ОК</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

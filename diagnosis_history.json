@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": 1777022836.2848687,
+    "datetime": "2026-04-24 12:27:16",
+    "bpm": 112.1,
+    "muscle": 83,
+    "eeg": 50,
+    "diagnosis_code": "combined",
+    "diagnosis_short": "Комбинированный риск",
+    "diagnosis_full": "Комбинированный риск сердечной и мышечной систем.",
+    "confidence": 78.05237579345703,
+    "raw_data": {
+      "pulse": 2800,
+      "emg": 700,
+      "eeg": 500
+    }
+  }
+]
